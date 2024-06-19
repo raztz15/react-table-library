@@ -1,13 +1,13 @@
 import { getOptions } from '../../Utils'
 import { LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
-import { useDebounce } from '../../hooks/useDecounce'
-import { FilterMenu, InputTypes } from '../filter-menu/FilterMenu'
+import { FilterMenu, IFilterMenuProps, InputTypes } from '../filter-menu/FilterMenu'
 import './Table.css'
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 
 interface ITableProps {
     data: any[]
     headers: IHeader[]
+    filterMenuProps?: Pick<IFilterMenuProps, 'title' | 'inputs'>
 }
 
 interface IHeader {
@@ -16,12 +16,11 @@ interface IHeader {
     isAscending?: boolean
 }
 
-export const Table = ({ data, headers }: ITableProps) => {
+export const Table = ({ data, headers, filterMenuProps }: ITableProps) => {
 
     const localStorageForm = localStorage.getItem(LOCAL_STORAGE_FILTER_FORM)
     const localStorageHeader = localStorage.getItem(LOCAL_STORAGE_HEADER)
 
-    // const [tableData, setTableData] = useState<any[]>(data)
     const [filteredData, setFilteredData] = useState<any[]>([])
     const [selectedHeader, setSelectedHeader] = useState<string>((localStorageHeader && JSON.parse(localStorageHeader).title) ?? '')
     const [tableHeaders, setTableHeaders] = useState<IHeader[]>(headers.map(({ key, title }) =>
@@ -70,26 +69,13 @@ export const Table = ({ data, headers }: ITableProps) => {
         setIsFilterMenuOpen(false)
     }
 
-    const filterMenuProps =
-    {
-        title: 'Employees',
-        inputs: [
-            { key: "name", label: "Name", type: InputTypes.text },
-            { key: "age", label: "Age", type: InputTypes.number },
-            { key: "annualRating", label: "Annual Rating", type: InputTypes.number },
-            { key: "dateOfJoining", label: "Date Of Joining", type: InputTypes.date },
-            { key: "role", label: "Role", type: InputTypes.select, options: getOptions(data, "role") },
-            { key: "department", label: "Department", type: InputTypes.select, options: getOptions(data, "department") },
-        ],
-        filterListByKeys,
-        closeFilterMenu
-    }
+
 
     return (
         <div>
             <div>
-                <button onClick={() => setIsFilterMenuOpen(prevIsFilterMenuOpen => !prevIsFilterMenuOpen)}>Filter</button>
-                {isFilterMenuOpen && <FilterMenu {...filterMenuProps} />}
+                {filterMenuProps && <button onClick={() => setIsFilterMenuOpen(prevIsFilterMenuOpen => !prevIsFilterMenuOpen)}>Filter</button>}
+                {isFilterMenuOpen && filterMenuProps && <FilterMenu  {...filterMenuProps} filterListByKeys={filterListByKeys} closeFilterMenu={closeFilterMenu} />}
             </div>
             {filteredData.length > 0 ? <table>
                 <thead>

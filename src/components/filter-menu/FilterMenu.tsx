@@ -2,7 +2,7 @@ import { LOCAL_STORAGE_FILTER_FORM } from '../../constants/LocalStorageConsts'
 import './FilterMenu.css'
 import React, { FormEvent, useState } from 'react'
 
-interface IFilterMenuProps {
+export interface IFilterMenuProps {
     title: string
     inputs: IInput[],
     filterListByKeys: (value: {}) => void
