@@ -1,0 +1,30 @@
+.filter-menu--container {
+  position: absolute;
+  z-index: 999;
+  background-color: antiquewhite;
+  margin-top: 10px;
+  padding: 20px;
+  border-radius: 10px;
+  transition: all 0.8s cubic-bezier(0.54, 0.35, 0.29, 0.99);
+  -webkit-transition: all 0.8s cubic-bezier(0.54, 0.35, 0.29, 0.99);
+  -moz-transition: all 0.8s cubic-bezier(0.54, 0.35, 0.29, 0.99);
+  -o-transition: all 0.8s cubic-bezier(0.54, 0.35, 0.29, 0.99);
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-menu--form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.filter-menu--form label {
+  display: inline-block;
+  min-width: 200px;
+}
+
+.filter-menu--buttons {
+  display: flex;
+  justify-content: space-between;
+}
