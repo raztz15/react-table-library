@@ -30,9 +30,14 @@ function App() {
     ],
   }
 
+  const mainSearchInput = {
+    placeHolderName: "Name",
+    searchKey: "name"
+  }
+
   return (
     <div className="App">
-      <Table data={tableData} headers={headers} filterMenuProps={filterMenuProps} />
+      <Table data={tableData} headers={headers} filterMenuProps={filterMenuProps} mainSearchInput={mainSearchInput} keyField="employeeId" />
     </div>
   );
 }

@@ -1,13 +1,20 @@
 import { getOptions } from '../../Utils'
 import { LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
-import { FilterMenu, IFilterMenuProps, InputTypes } from '../filter-menu/FilterMenu'
+import { FilterMenu, IFilterMenuProps } from '../filter-menu/FilterMenu'
 import './Table.css'
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 
 interface ITableProps {
     data: any[]
     headers: IHeader[]
+    keyField: string
     filterMenuProps?: Pick<IFilterMenuProps, 'title' | 'inputs'>
+    mainSearchInput?: IMainSearchInputProps
+}
+
+interface IMainSearchInputProps {
+    placeHolderName: string
+    searchKey: string
 }
 
 interface IHeader {
@@ -16,7 +23,7 @@ interface IHeader {
     isAscending?: boolean
 }
 
-export const Table = ({ data, headers, filterMenuProps }: ITableProps) => {
+export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInput }: ITableProps) => {
 
     const localStorageForm = localStorage.getItem(LOCAL_STORAGE_FILTER_FORM)
     const localStorageHeader = localStorage.getItem(LOCAL_STORAGE_HEADER)
@@ -27,6 +34,7 @@ export const Table = ({ data, headers, filterMenuProps }: ITableProps) => {
         ({ key, title, isAscending: localStorageHeader && title === JSON.parse(localStorageHeader).title ? JSON.parse(localStorageHeader).isAscending : false })
     ))
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState<boolean>(false)
+    const [inputValue, setInputValue] = useState<string>('')
 
     useEffect(() => {
         filterListByKeys()
@@ -69,10 +77,21 @@ export const Table = ({ data, headers, filterMenuProps }: ITableProps) => {
         setIsFilterMenuOpen(false)
     }
 
-
+    const handleChangeSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (mainSearchInput) {
+            const { searchKey } = mainSearchInput
+            const { value } = e.target
+            setInputValue(value)
+            const filteredData = data.filter(item => item[searchKey].toLowerCase().includes(value.toLowerCase()))
+            setFilteredData(filteredData)
+        }
+    }
 
     return (
         <div>
+            {mainSearchInput && <div>
+                <input placeholder={`Search By ${mainSearchInput?.placeHolderName}...`} value={inputValue} onChange={(e) => handleChangeSearchInput(e)} />
+            </div>}
             <div>
                 {filterMenuProps && <button onClick={() => setIsFilterMenuOpen(prevIsFilterMenuOpen => !prevIsFilterMenuOpen)}>Filter</button>}
                 {isFilterMenuOpen && filterMenuProps && <FilterMenu  {...filterMenuProps} filterListByKeys={filterListByKeys} closeFilterMenu={closeFilterMenu} />}
@@ -89,7 +108,7 @@ export const Table = ({ data, headers, filterMenuProps }: ITableProps) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedData.map(item => <tr key={item.id}>
+                    {sortedData.map(item => <tr key={item[keyField]}>
                         {Object.entries(item).map(([key, value]) => <td key={key}>{(typeof value === "string" || typeof value === "number") && value as ReactNode}</td>)}
                     </tr>)}
                 </tbody>
