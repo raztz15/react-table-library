@@ -1,0 +1,9 @@
+.employee-details--container > h2 {
+  text-align: center;
+}
+
+.employee-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

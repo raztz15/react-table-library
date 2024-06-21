@@ -1,0 +1,15 @@
+.table--footer {
+  display: flex;
+  gap: 20px;
+}
+
+.table--footer__pages {
+  cursor: pointer;
+  border: 1px solid black;
+  border-radius: 50%;
+  padding: 5px 10px;
+}
+
+.table--footer__pages.active {
+  background-color: rgb(180, 174, 174);
+}

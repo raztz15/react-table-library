@@ -1,3 +1,4 @@
-.table-head {
+.main-table--container td {
   cursor: pointer;
+  padding: 5px;
 }

@@ -1,6 +1,8 @@
-import { getOptions } from '../../Utils'
-import { LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
+import { LOCAL_STORAGE_CURR_PAGE, LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
+import { EmployeeDetails, IEmployeeDetailsProps } from '../employee-details/EmployeeDetails'
 import { FilterMenu, IFilterMenuProps } from '../filter-menu/FilterMenu'
+import { Modal } from '../modal/Modal'
+import { TableFooter } from '../table-footer/TableFooter'
 import './Table.css'
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 
@@ -10,6 +12,7 @@ interface ITableProps {
     keyField: string
     filterMenuProps?: Pick<IFilterMenuProps, 'title' | 'inputs'>
     mainSearchInput?: IMainSearchInputProps
+    numOfItemsToShow: number
 }
 
 interface IMainSearchInputProps {
@@ -23,10 +26,11 @@ interface IHeader {
     isAscending?: boolean
 }
 
-export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInput }: ITableProps) => {
+export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInput, numOfItemsToShow }: ITableProps) => {
 
     const localStorageForm = localStorage.getItem(LOCAL_STORAGE_FILTER_FORM)
     const localStorageHeader = localStorage.getItem(LOCAL_STORAGE_HEADER)
+    const localStorageCurrPage = localStorage.getItem(LOCAL_STORAGE_CURR_PAGE)
 
     const [filteredData, setFilteredData] = useState<any[]>([])
     const [selectedHeader, setSelectedHeader] = useState<string>((localStorageHeader && JSON.parse(localStorageHeader).title) ?? '')
@@ -35,6 +39,10 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
     ))
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState<boolean>(false)
     const [inputValue, setInputValue] = useState<string>('')
+    const [selectedItem, setSelectedItem] = useState<object>()
+    const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [currentPage, setcurrentPage] = useState<number>((localStorageCurrPage && JSON.parse(localStorageCurrPage)) ?? 1)
 
     useEffect(() => {
         filterListByKeys()
@@ -87,6 +95,21 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         }
     }
 
+    const handleRowClick = (row: object) => {
+        setSelectedItem(row)
+        setIsOpenModal(true)
+    }
+
+    const closeModal = () => {
+        setIsOpenModal(false)
+    }
+
+    const updateCurrentIndex = (pageNum: number) => {
+        setcurrentPage(pageNum)
+        localStorage.setItem(LOCAL_STORAGE_CURR_PAGE, JSON.stringify(pageNum))
+        setCurrentIndex((pageNum - 1) * numOfItemsToShow)
+    }
+
     return (
         <div>
             {mainSearchInput && <div>
@@ -96,7 +119,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
                 {filterMenuProps && <button onClick={() => setIsFilterMenuOpen(prevIsFilterMenuOpen => !prevIsFilterMenuOpen)}>Filter</button>}
                 {isFilterMenuOpen && filterMenuProps && <FilterMenu  {...filterMenuProps} filterListByKeys={filterListByKeys} closeFilterMenu={closeFilterMenu} />}
             </div>
-            {filteredData.length > 0 ? <table>
+            {filteredData.length > 0 ? <table className='main-table--container'>
                 <thead>
                     <tr>
                         {tableHeaders.map(header => <th className='table-head'
@@ -108,11 +131,13 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedData.map(item => <tr key={item[keyField]}>
-                        {Object.entries(item).map(([key, value]) => <td key={key}>{(typeof value === "string" || typeof value === "number") && value as ReactNode}</td>)}
+                    {sortedData.slice(currentIndex, currentIndex + numOfItemsToShow).map(item => <tr key={item[keyField]}>
+                        {Object.entries(item).map(([key, value]) => <td className='table--body__td' onClick={() => handleRowClick(item)} key={key}>{(typeof value === "string" || typeof value === "number") && value as ReactNode}</td>)}
                     </tr>)}
+                    {isOpenModal && <Modal component={<EmployeeDetails {...selectedItem as IEmployeeDetailsProps} />} isOpen={isOpenModal} closeModal={closeModal} />}
                 </tbody>
             </table> : <h2>No data to display</h2>}
+            <TableFooter dataLength={sortedData.length} numOfItemsToShow={numOfItemsToShow} updateCurrentIndex={updateCurrentIndex} currentPage={currentPage} />
         </div>
     )
 }
