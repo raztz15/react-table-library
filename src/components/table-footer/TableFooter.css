@@ -3,6 +3,12 @@
   gap: 20px;
 }
 
+.table--footer button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
 .table--footer__pages {
   cursor: pointer;
   border: 1px solid black;

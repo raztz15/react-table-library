@@ -110,6 +110,23 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         setCurrentIndex((pageNum - 1) * numOfItemsToShow)
     }
 
+    const handleNextButton = () => {
+        const pages = Math.ceil(sortedData.length / numOfItemsToShow)
+        let currPage = currentPage
+        if (currentPage < pages) currPage += 1
+        setcurrentPage(currPage)
+        setCurrentIndex((currPage - 1) * numOfItemsToShow)
+        localStorage.setItem(LOCAL_STORAGE_CURR_PAGE, JSON.stringify(currPage))
+    }
+
+    const handlePrevButton = () => {
+        let currPage = currentPage
+        if (currPage > 1) currPage -= 1
+        setcurrentPage(currPage)
+        setCurrentIndex((currPage - 1) * numOfItemsToShow)
+        localStorage.setItem(LOCAL_STORAGE_CURR_PAGE, JSON.stringify(currPage))
+    }
+
     return (
         <div>
             {mainSearchInput && <div>
@@ -137,7 +154,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
                     {isOpenModal && <Modal component={<EmployeeDetails {...selectedItem as IEmployeeDetailsProps} />} isOpen={isOpenModal} closeModal={closeModal} />}
                 </tbody>
             </table> : <h2>No data to display</h2>}
-            <TableFooter dataLength={sortedData.length} numOfItemsToShow={numOfItemsToShow} updateCurrentIndex={updateCurrentIndex} currentPage={currentPage} />
+            <TableFooter dataLength={sortedData.length} numOfItemsToShow={numOfItemsToShow} updateCurrentIndex={updateCurrentIndex} currentPage={currentPage} handleNextButton={handleNextButton} handlePrevButton={handlePrevButton} />
         </div>
     )
 }
