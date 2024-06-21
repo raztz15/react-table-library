@@ -14,7 +14,19 @@ export const TableFooter = ({ dataLength, numOfItemsToShow, updateCurrentIndex, 
 
     const pages = Math.ceil(dataLength / numOfItemsToShow)
 
-    const pagesLinksToShow = 5
+    const pageLinksToShow = 5;
+    const halfPageLinksToShow = Math.floor(pageLinksToShow / 2);
+
+    // Determine start and end page numbers
+    let startPage = Math.max(currentPage - halfPageLinksToShow, 1);
+    let endPage = Math.min(currentPage + halfPageLinksToShow, pages);
+
+    // Adjust if we are at the beginning or end of the page range
+    if (currentPage <= halfPageLinksToShow) {
+        endPage = Math.min(pageLinksToShow, pages);
+    } else if (currentPage + halfPageLinksToShow >= pages) {
+        startPage = Math.max(pages - pageLinksToShow + 1, 1);
+    }
 
     if (pages <= 1) return null
 

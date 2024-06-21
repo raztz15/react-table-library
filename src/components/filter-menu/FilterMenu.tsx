@@ -33,7 +33,7 @@ export const FilterMenu = ({ title, inputs, filterListByKeys, closeFilterMenu }:
     const handleSubmit = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         localStorage.setItem(LOCAL_STORAGE_FILTER_FORM, JSON.stringify(form))
         e.preventDefault()
-        form && filterListByKeys(form)
+        filterListByKeys(form)
         closeFilterMenu()
     }
 

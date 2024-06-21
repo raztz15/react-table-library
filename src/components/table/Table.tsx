@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_CURR_PAGE, LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
+import { LOCAL_STORAGE_CURR_IDX, LOCAL_STORAGE_CURR_PAGE, LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
 import { EmployeeDetails, IEmployeeDetailsProps } from '../employee-details/EmployeeDetails'
 import { FilterMenu, IFilterMenuProps } from '../filter-menu/FilterMenu'
 import { Modal } from '../modal/Modal'
@@ -31,6 +31,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
     const localStorageForm = localStorage.getItem(LOCAL_STORAGE_FILTER_FORM)
     const localStorageHeader = localStorage.getItem(LOCAL_STORAGE_HEADER)
     const localStorageCurrPage = localStorage.getItem(LOCAL_STORAGE_CURR_PAGE)
+    const localStorageCurrIdx = localStorage.getItem(LOCAL_STORAGE_CURR_IDX)
 
     const [filteredData, setFilteredData] = useState<any[]>([])
     const [selectedHeader, setSelectedHeader] = useState<string>((localStorageHeader && JSON.parse(localStorageHeader).title) ?? '')
@@ -41,7 +42,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
     const [inputValue, setInputValue] = useState<string>('')
     const [selectedItem, setSelectedItem] = useState<object>()
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
-    const [currentIndex, setCurrentIndex] = useState(0)
+    const [currentIndex, setCurrentIndex] = useState((localStorageCurrIdx && JSON.parse(localStorageCurrIdx)) ?? 0)
     const [currentPage, setcurrentPage] = useState<number>((localStorageCurrPage && JSON.parse(localStorageCurrPage)) ?? 1)
 
     useEffect(() => {
@@ -53,7 +54,6 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         const objectEntries = Object.entries(localStorageForm ? JSON.parse(localStorageForm) : {})
         const filteredData = data.filter(item => objectEntries.every(([key, value]) => item[key] && item[key].toString().toLowerCase().includes((value as string).toLowerCase())))
         setFilteredData(filteredData)
-        return filteredData
     }
 
     const sortedData = useMemo(() => {
@@ -108,6 +108,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         setcurrentPage(pageNum)
         localStorage.setItem(LOCAL_STORAGE_CURR_PAGE, JSON.stringify(pageNum))
         setCurrentIndex((pageNum - 1) * numOfItemsToShow)
+        localStorage.setItem(LOCAL_STORAGE_CURR_IDX, JSON.stringify((pageNum - 1) * numOfItemsToShow))
     }
 
     const handleNextButton = () => {
@@ -116,6 +117,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         if (currentPage < pages) currPage += 1
         setcurrentPage(currPage)
         setCurrentIndex((currPage - 1) * numOfItemsToShow)
+        localStorage.setItem(LOCAL_STORAGE_CURR_IDX, JSON.stringify((currPage - 1) * numOfItemsToShow))
         localStorage.setItem(LOCAL_STORAGE_CURR_PAGE, JSON.stringify(currPage))
     }
 
@@ -124,6 +126,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         if (currPage > 1) currPage -= 1
         setcurrentPage(currPage)
         setCurrentIndex((currPage - 1) * numOfItemsToShow)
+        localStorage.setItem(LOCAL_STORAGE_CURR_IDX, JSON.stringify((currPage - 1) * numOfItemsToShow))
         localStorage.setItem(LOCAL_STORAGE_CURR_PAGE, JSON.stringify(currPage))
     }
 

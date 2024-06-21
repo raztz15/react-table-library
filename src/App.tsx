@@ -37,7 +37,7 @@ function App() {
 
   return (
     <div className="App">
-      <Table data={tableData} headers={headers} filterMenuProps={filterMenuProps} mainSearchInput={mainSearchInput} keyField="employeeId" numOfItemsToShow={7} />
+      <Table data={tableData} headers={headers} filterMenuProps={filterMenuProps} mainSearchInput={mainSearchInput} keyField="employeeId" numOfItemsToShow={10} />
     </div>
   );
 }
