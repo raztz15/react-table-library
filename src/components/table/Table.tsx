@@ -1,3 +1,4 @@
+import { isValidDate } from '../../Utils'
 import { LOCAL_STORAGE_CURR_IDX, LOCAL_STORAGE_CURR_PAGE, LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
 import { EmployeeDetails, IEmployeeDetailsProps } from '../employee-details/EmployeeDetails'
 import { FilterMenu, IFilterMenuProps } from '../filter-menu/FilterMenu'
@@ -48,7 +49,6 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
     useEffect(() => {
         filterListByKeys()
     }, [localStorageForm])
-
 
     const filterListByKeys = () => {
         const objectEntries = Object.entries(localStorageForm ? JSON.parse(localStorageForm) : {})
@@ -152,7 +152,11 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
                 </thead>
                 <tbody>
                     {sortedData.slice(currentIndex, currentIndex + numOfItemsToShow).map(item => <tr key={item[keyField]}>
-                        {Object.entries(item).map(([key, value]) => <td className='table--body__td' onClick={() => handleRowClick(item)} key={key}>{(typeof value === "string" || typeof value === "number") && value as ReactNode}</td>)}
+                        {Object.entries(item).map(([key, value]) => <td className='table--body__td' onClick={() => handleRowClick(item)} key={key}>
+                            {(typeof value === 'string' && isValidDate(value) ?
+                                new Date(value).toLocaleDateString() :
+                                (typeof value === "string" || typeof value === "number") ?
+                                    value as ReactNode : undefined)}</td>)}
                     </tr>)}
                     {isOpenModal && <Modal component={<EmployeeDetails {...selectedItem as IEmployeeDetailsProps} />} isOpen={isOpenModal} closeModal={closeModal} />}
                 </tbody>

@@ -14,7 +14,7 @@ export const TableFooter = ({ dataLength, numOfItemsToShow, updateCurrentIndex, 
 
     const pages = Math.ceil(dataLength / numOfItemsToShow)
 
-    const pageLinksToShow = 5;
+    const pageLinksToShow = 3;
     const halfPageLinksToShow = Math.floor(pageLinksToShow / 2);
 
     // Determine start and end page numbers
@@ -28,14 +28,28 @@ export const TableFooter = ({ dataLength, numOfItemsToShow, updateCurrentIndex, 
         startPage = Math.max(pages - pageLinksToShow + 1, 1);
     }
 
+    const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, idx) => startPage + idx);
+
     if (pages <= 1) return null
 
     return (
         <div className='table--footer'>
-            <button onClick={handlePrevButton}>Previous</button>
-            {Array.from({ length: pages }).map((_, idx) =>
-                <div aria-current={currentPage === idx + 1 ? 'page' : undefined} className={`table--footer__pages ${currentPage === idx + 1 ? 'active' : ''}`} key={idx} onClick={() => updateCurrentIndex(idx + 1)}>{idx + 1}</div>)}
-            <button onClick={handleNextButton}>Next</button>
+            <button onClick={handlePrevButton} disabled={currentPage === 1}>Previous</button>
+            {startPage > 1 && <div className="table--footer__pages" onClick={() => updateCurrentIndex(1)}>1</div>}
+            {startPage > 2 && <span>...</span>}
+            {pageNumbers.map(pageNum => (
+                <div
+                    key={pageNum}
+                    aria-current={currentPage === pageNum ? 'page' : undefined}
+                    className={`table--footer__pages ${currentPage === pageNum ? 'active' : ''}`}
+                    onClick={() => updateCurrentIndex(pageNum)}
+                >
+                    {pageNum}
+                </div>
+            ))}
+            {endPage < pages - 1 && <span>...</span>}
+            {endPage < pages && <div className="table--footer__pages" onClick={() => updateCurrentIndex(pages)}>{pages}</div>}
+            <button onClick={handleNextButton} disabled={currentPage === pages}>Next</button>
         </div>
     )
 }
