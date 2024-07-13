@@ -65,7 +65,7 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
 
         const sortedData = [...filteredData]
         sortedData.sort((a, b) => {
-            if (currentHeader.key && currentHeader.key) {
+            if (currentHeader.key) {
 
                 const aValue = a[currentHeader.key]
                 const bValue = b[currentHeader.key]

@@ -10,7 +10,7 @@ function App() {
   const headers = [
     { title: "Id", key: "employeeId" },
     { title: "Name", key: "name" },
-    { title: "Department", key: "department" },
+    { title: "Department" },
     { title: "Role", key: "role" },
     { title: "Age", key: "age" },
     { title: "Date Of Joining", key: "dateOfJoining" },
