@@ -7,13 +7,13 @@ import { TableFooter } from '../table-footer/TableFooter'
 import './Table.css'
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 
-interface ITableProps {
+interface ITableProps<T> {
     data: any[]
     headers: IHeader[]
     keyField: string
     filterMenuProps?: Pick<IFilterMenuProps, 'title' | 'inputs'>
     mainSearchInput?: IMainSearchInputProps
-    numOfItemsToShow: number
+    numOfItemsToShow?: number
 }
 
 interface IMainSearchInputProps {
@@ -22,12 +22,12 @@ interface IMainSearchInputProps {
 }
 
 interface IHeader {
-    key: string
+    key?: string
     title: string
     isAscending?: boolean
 }
 
-export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInput, numOfItemsToShow }: ITableProps) => {
+export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearchInput, numOfItemsToShow = data.length }: ITableProps<T>) => {
 
     const localStorageForm = localStorage.getItem(LOCAL_STORAGE_FILTER_FORM)
     const localStorageHeader = localStorage.getItem(LOCAL_STORAGE_HEADER)
@@ -50,10 +50,12 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
         filterListByKeys()
     }, [localStorageForm])
 
+
+
     const filterListByKeys = () => {
         const objectEntries = Object.entries(localStorageForm ? JSON.parse(localStorageForm) : {})
-        const filteredData = data.filter(item => objectEntries.every(([key, value]) => item[key] && item[key].toString().toLowerCase().includes((value as string).toLowerCase())))
-        setFilteredData(filteredData)
+        const filtered = data.filter(item => objectEntries.every(([key, value]) => item[key] && item[key].toString().toLowerCase().includes((value as string).toLowerCase())))
+        setFilteredData(filtered)
     }
 
     const sortedData = useMemo(() => {
@@ -63,22 +65,28 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
 
         const sortedData = [...filteredData]
         sortedData.sort((a, b) => {
-            const aValue = a[currentHeader.key]
-            const bValue = b[currentHeader.key]
-            if (aValue === bValue) return 0
-            if (typeof aValue === 'number' && typeof bValue === 'number') return currentHeader.isAscending ? aValue - bValue : bValue - aValue
-            if (typeof aValue === 'string' && typeof bValue === 'string') return currentHeader.isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
-            if (aValue instanceof Date && bValue instanceof Date) return currentHeader.isAscending ? aValue.getTime() - bValue.getTime() : bValue.getTime() - aValue.getTime()
+            if (currentHeader.key && currentHeader.key) {
+
+                const aValue = a[currentHeader.key]
+                const bValue = b[currentHeader.key]
+                if (aValue === bValue) return 0
+                if (typeof aValue === 'number' && typeof bValue === 'number') return currentHeader.isAscending ? aValue - bValue : bValue - aValue
+                if (typeof aValue === 'string' && typeof bValue === 'string') return currentHeader.isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+                if (aValue instanceof Date && bValue instanceof Date) return currentHeader.isAscending ? aValue.getTime() - bValue.getTime() : bValue.getTime() - aValue.getTime()
+            }
             return 0
         })
+        if (sortedData.length < numOfItemsToShow) setCurrentIndex(0)
         return sortedData
     }, [selectedHeader, data, tableHeaders, filteredData])
 
     const handleHeaderClick = (header: IHeader) => {
-        const currentHeader: IHeader | undefined = tableHeaders.find(h => h.title === header.title)
-        setTableHeaders(prevTableHeaders => prevTableHeaders.map(currentHeader => ({ ...currentHeader, isAscending: header.title === currentHeader.title ? !currentHeader.isAscending : false })))
-        setSelectedHeader(header.title)
-        localStorage.setItem(LOCAL_STORAGE_HEADER, JSON.stringify({ ...currentHeader, isAscending: !header.isAscending }))
+        if (header.key) {
+            const currentHeader: IHeader | undefined = tableHeaders.find(h => h.title === header.title)
+            setTableHeaders(prevTableHeaders => prevTableHeaders.map(currentHeader => ({ ...currentHeader, isAscending: header.title === currentHeader.title ? !currentHeader.isAscending : false })))
+            setSelectedHeader(header.title)
+            localStorage.setItem(LOCAL_STORAGE_HEADER, JSON.stringify({ ...currentHeader, isAscending: !header.isAscending }))
+        }
     }
 
     const closeFilterMenu = () => {
@@ -143,6 +151,7 @@ export const Table = ({ data, headers, keyField, filterMenuProps, mainSearchInpu
                 <thead>
                     <tr>
                         {tableHeaders.map(header => <th className='table-head'
+                            style={{ cursor: header.key ? "pointer" : "auto" }}
                             onClick={() => handleHeaderClick(header)}
                             key={header.title}>
                             <div>{header.title}<span>{localStorageHeader && JSON.parse(localStorageHeader).title === header.title && (header.isAscending ? ' 🔼' : ' 🔽')}</span></div>

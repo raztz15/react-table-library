@@ -18,4 +18,10 @@
 
 .table--footer__pages.active {
   background-color: rgb(180, 174, 174);
+  color: white;
+}
+
+.table--footer__pages:hover {
+  background-color: rgb(223, 219, 219);
+  color: black;
 }
