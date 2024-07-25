@@ -1,3 +1,4 @@
+import { Button } from '@mui/material'
 import './TableFooter.css'
 import React, { useState } from 'react'
 
@@ -34,7 +35,7 @@ export const TableFooter = ({ dataLength, numOfItemsToShow, updateCurrentIndex, 
 
     return (
         <div className='table--footer'>
-            <button onClick={handlePrevButton} disabled={currentPage === 1}>Previous</button>
+            <Button onClick={handlePrevButton} disabled={currentPage === 1}>Previous</Button>
             {startPage > 1 && <div className="table--footer__pages" onClick={() => updateCurrentIndex(1)}>1</div>}
             {startPage > 2 && <span>...</span>}
             {pageNumbers.map(pageNum => (
@@ -49,7 +50,7 @@ export const TableFooter = ({ dataLength, numOfItemsToShow, updateCurrentIndex, 
             ))}
             {endPage < pages - 1 && <span>...</span>}
             {endPage < pages && <div className="table--footer__pages" onClick={() => updateCurrentIndex(pages)}>{pages}</div>}
-            <button onClick={handleNextButton} disabled={currentPage === pages}>Next</button>
+            <Button onClick={handleNextButton} disabled={currentPage === pages}>Next</Button>
         </div>
     )
 }

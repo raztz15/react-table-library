@@ -1,4 +1,13 @@
 .main-table--container td {
   cursor: pointer;
-  padding: 5px;
+}
+
+.tools-bar {
+  display: flex;
+  padding: 20px 0;
+  justify-content: space-between;
+}
+
+.tools-bar > Button {
+  position: relative;
 }

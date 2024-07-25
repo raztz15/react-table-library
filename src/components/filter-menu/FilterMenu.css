@@ -4,6 +4,8 @@
   background-color: antiquewhite;
   margin-top: 10px;
   padding: 20px;
+  top: 60px;
+  left: 10px;
   border-radius: 10px;
   transition: all 0.8s cubic-bezier(0.54, 0.35, 0.29, 0.99);
   -webkit-transition: all 0.8s cubic-bezier(0.54, 0.35, 0.29, 0.99);
@@ -27,4 +29,8 @@
 .filter-menu--buttons {
   display: flex;
   justify-content: space-between;
+}
+
+.filter-menu--buttons * {
+  cursor: pointer;
 }

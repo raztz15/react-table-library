@@ -1,3 +1,4 @@
+import { Card, FormControl, Input, MenuItem, Select, Typography } from '@mui/material'
 import { LOCAL_STORAGE_FILTER_FORM } from '../../constants/LocalStorageConsts'
 import './FilterMenu.css'
 import React, { FormEvent, useEffect, useState } from 'react'
@@ -48,26 +49,27 @@ export const FilterMenu = ({ title, inputs, filterListByKeys, closeFilterMenu }:
         setInputValue({})
         localStorage.setItem(LOCAL_STORAGE_FILTER_FORM, JSON.stringify({}))
     }
+    console.log(inputs[4].options);
 
     return (
-        <div className='filter-menu--container'>
-            <h1>{title}</h1>
-            <form className='filter-menu--form'>
+        <Card className='filter-menu--container'>
+            <Typography variant='h4'>{title}</Typography>
+            <FormControl className='filter-menu--form'>
                 {inputs.map(({ type, label, key, required, options }) => {
                     return <div key={key}>
                         <label htmlFor={key}>{label}: </label>
                         {type === InputTypes.select ?
-                            <select name={key} value={inputValue[key] || ''} onChange={(e) => handleChange(e)}>
-                                {options?.map(option => <option key={option.optionKey}>{option.optionVal}</option>)}
-                            </select> :
-                            <input value={inputValue[key] || ''} type={type} id={key} name={key} required={required} onChange={(e) => handleChange(e)} />}
+                            <Select sx={{ width: '100%' }} name={key} value={inputValue[key] || (options && options[0].optionVal)} onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}>
+                                {options?.map(option => <MenuItem value={option.optionVal} key={option.optionKey}>{option.optionVal}</MenuItem>)}
+                            </Select> :
+                            <Input value={inputValue[key] || ''} type={type} id={key} name={key} required={required} onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)} />}
                     </div>
                 })}
                 <div className='filter-menu--buttons'>
-                    <input onClick={(e) => handleSubmit(e)} type="submit" value="Submit" />
-                    <input type="reset" value="Clear" onClick={handleClear} />
+                    <Input onClick={(e) => handleSubmit(e as React.MouseEvent<HTMLInputElement, MouseEvent>)} color='primary' type="submit" value="Submit" />
+                    <Input type="reset" value="Clear" onClick={handleClear} />
                 </div>
-            </form>
-        </div>
+            </FormControl>
+        </Card>
     )
 }

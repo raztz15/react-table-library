@@ -1,3 +1,4 @@
+import { formatDate } from '../../Utils'
 import './EmployeeDetails.css'
 
 export interface IEmployeeDetailsProps {
@@ -28,7 +29,7 @@ export const EmployeeDetails = ({ employeeId, name, department, role, age, dateO
                 <div><strong>Department : </strong>{department}</div>
                 <div><strong>Role : </strong>{role}</div>
                 <div><strong>Age : </strong>{age}</div>
-                <div><strong>Date Of Joining : </strong>{dateOfJoining}</div>
+                <div><strong>Date Of Joining : </strong>{formatDate(dateOfJoining)}</div>
                 <div><strong>Annual Rating : </strong>{annualRating}</div>
                 <div><strong>Employee Performance :</strong>
                     <table>

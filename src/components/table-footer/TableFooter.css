@@ -1,6 +1,8 @@
 .table--footer {
   display: flex;
   gap: 20px;
+  justify-content: flex-end;
+  padding: 20px;
 }
 
 .table--footer button {
@@ -11,17 +13,20 @@
 
 .table--footer__pages {
   cursor: pointer;
-  border: 1px solid black;
-  border-radius: 50%;
+  border: 1px solid #f1f1f1;
+  border-radius: 10px;
   padding: 5px 10px;
+  height: fit-content;
+  font-weight: 400;
 }
 
 .table--footer__pages.active {
-  background-color: rgb(180, 174, 174);
+  background-color: #2f80ed;
   color: white;
+  border: none;
 }
 
 .table--footer__pages:hover {
-  background-color: rgb(223, 219, 219);
+  background-color: #5398ff;
   color: black;
 }
