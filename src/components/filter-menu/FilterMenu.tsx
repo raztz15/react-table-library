@@ -1,4 +1,4 @@
-import { Card, FormControl, Input, MenuItem, Select, Typography } from '@mui/material'
+import { Button, Card, FormControl, Input, MenuItem, Select, Typography } from '@mui/material'
 import { LOCAL_STORAGE_FILTER_FORM } from '../../constants/LocalStorageConsts'
 import './FilterMenu.css'
 import React, { FormEvent, useEffect, useState } from 'react'
@@ -49,7 +49,6 @@ export const FilterMenu = ({ title, inputs, filterListByKeys, closeFilterMenu }:
         setInputValue({})
         localStorage.setItem(LOCAL_STORAGE_FILTER_FORM, JSON.stringify({}))
     }
-    console.log(inputs[4].options);
 
     return (
         <Card className='filter-menu--container'>
@@ -66,8 +65,8 @@ export const FilterMenu = ({ title, inputs, filterListByKeys, closeFilterMenu }:
                     </div>
                 })}
                 <div className='filter-menu--buttons'>
-                    <Input onClick={(e) => handleSubmit(e as React.MouseEvent<HTMLInputElement, MouseEvent>)} color='primary' type="submit" value="Submit" />
-                    <Input type="reset" value="Clear" onClick={handleClear} />
+                    <Button onClick={(e) => handleSubmit(e as React.MouseEvent<HTMLInputElement, MouseEvent>)} variant='contained' color='success' type="submit" value="Submit" >Submit</Button>
+                    <Button type="reset" value="Clear" color="primary" onClick={handleClear} >Clear</Button>
                 </div>
             </FormControl>
         </Card>
