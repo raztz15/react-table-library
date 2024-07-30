@@ -1,4 +1,4 @@
-import { isValidDate } from '../../Utils'
+import { formatDate, isValidDate } from '../../Utils'
 import { LOCAL_STORAGE_CURR_IDX, LOCAL_STORAGE_CURR_PAGE, LOCAL_STORAGE_FILTER_FORM, LOCAL_STORAGE_HEADER } from '../../constants/LocalStorageConsts'
 import { EmployeeDetails, IEmployeeDetailsProps } from '../employee-details/EmployeeDetails'
 import { FilterMenu, IFilterMenuProps } from '../filter-menu/FilterMenu'
@@ -6,6 +6,15 @@ import { Modal } from '../modal/Modal'
 import { TableFooter } from '../table-footer/TableFooter'
 import './Table.css'
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
+import MuiTable from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { Button, Input } from '@mui/material'
+
 
 interface ITableProps<T> {
     data: any[]
@@ -40,17 +49,27 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
         ({ key, title, isAscending: localStorageHeader && title === JSON.parse(localStorageHeader).title ? JSON.parse(localStorageHeader).isAscending : false })
     ))
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState<boolean>(false)
-    const [inputValue, setInputValue] = useState<string>('')
+    const [inputValue, setInputValue] = useState<string>((localStorageForm && mainSearchInput?.searchKey) ? JSON.parse(localStorageForm)[mainSearchInput?.searchKey] : '')
     const [selectedItem, setSelectedItem] = useState<object>()
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
     const [currentIndex, setCurrentIndex] = useState((localStorageCurrIdx && JSON.parse(localStorageCurrIdx)) ?? 0)
     const [currentPage, setcurrentPage] = useState<number>((localStorageCurrPage && JSON.parse(localStorageCurrPage)) ?? 1)
 
+
     useEffect(() => {
         filterListByKeys()
     }, [localStorageForm])
 
+    useEffect(() => {
+        setInputValue((localStorageForm && mainSearchInput?.searchKey) ? JSON.parse(localStorageForm)[mainSearchInput?.searchKey] : undefined)
+    }, [localStorageForm])
 
+    useEffect(() => {
+        if (!inputValue) {
+
+            setCurrentIndex((localStorageCurrIdx && JSON.parse(localStorageCurrIdx)))
+        }
+    }, [inputValue])
 
     const filterListByKeys = () => {
         const objectEntries = Object.entries(localStorageForm ? JSON.parse(localStorageForm) : {})
@@ -61,6 +80,7 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
     const sortedData = useMemo(() => {
         const currentHeader = tableHeaders.find(header => header.title === selectedHeader)
 
+        if (filteredData.length < numOfItemsToShow) setCurrentIndex(0)
         if (!currentHeader) return filteredData
 
         const sortedData = [...filteredData]
@@ -76,7 +96,7 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
             }
             return 0
         })
-        if (sortedData.length < numOfItemsToShow) setCurrentIndex(0)
+
         return sortedData
     }, [selectedHeader, data, tableHeaders, filteredData])
 
@@ -94,11 +114,13 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
     }
 
     const handleChangeSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+
         if (mainSearchInput) {
             const { searchKey } = mainSearchInput
             const { value } = e.target
             setInputValue(value)
-            const filteredData = data.filter(item => item[searchKey].toLowerCase().includes(value.toLowerCase()))
+            localStorage.setItem(LOCAL_STORAGE_FILTER_FORM, JSON.stringify({ [searchKey]: value }))
+            const filteredData = data.filter(item => item[searchKey].toString().toLowerCase().includes(value.toLowerCase()))
             setFilteredData(filteredData)
         }
     }
@@ -139,38 +161,42 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
     }
 
     return (
-        <div>
-            {mainSearchInput && <div>
-                <input placeholder={`Search By ${mainSearchInput?.placeHolderName}...`} value={inputValue} onChange={(e) => handleChangeSearchInput(e)} />
-            </div>}
-            <div>
-                {filterMenuProps && <button onClick={() => setIsFilterMenuOpen(prevIsFilterMenuOpen => !prevIsFilterMenuOpen)}>Filter</button>}
+        <React.Fragment>
+            <div className='tools-bar'>
+                {filterMenuProps && <Button onClick={() => setIsFilterMenuOpen(prevIsFilterMenuOpen => !prevIsFilterMenuOpen)}>Filter</Button>}
                 {isFilterMenuOpen && filterMenuProps && <FilterMenu  {...filterMenuProps} filterListByKeys={filterListByKeys} closeFilterMenu={closeFilterMenu} />}
+                {mainSearchInput && <div>
+                    <Input placeholder={`Search By ${mainSearchInput?.placeHolderName}...`} value={inputValue} onChange={(e) => handleChangeSearchInput(e as React.ChangeEvent<HTMLInputElement>)} />
+                </div>}
             </div>
-            {filteredData.length > 0 ? <table className='main-table--container'>
-                <thead>
-                    <tr>
-                        {tableHeaders.map(header => <th className='table-head'
-                            style={{ cursor: header.key ? "pointer" : "auto" }}
-                            onClick={() => handleHeaderClick(header)}
-                            key={header.title}>
-                            <div>{header.title}<span>{localStorageHeader && JSON.parse(localStorageHeader).title === header.title && (header.isAscending ? ' 🔼' : ' 🔽')}</span></div>
-                        </th>
-                        )}
-                    </tr>
-                </thead>
-                <tbody>
-                    {sortedData.slice(currentIndex, currentIndex + numOfItemsToShow).map(item => <tr key={item[keyField]}>
-                        {Object.entries(item).map(([key, value]) => <td className='table--body__td' onClick={() => handleRowClick(item)} key={key}>
-                            {(typeof value === 'string' && isValidDate(value) ?
-                                new Date(value).toLocaleDateString() :
-                                (typeof value === "string" || typeof value === "number") ?
-                                    value as ReactNode : undefined)}</td>)}
-                    </tr>)}
-                    {isOpenModal && <Modal component={<EmployeeDetails {...selectedItem as IEmployeeDetailsProps} />} isOpen={isOpenModal} closeModal={closeModal} />}
-                </tbody>
-            </table> : <h2>No data to display</h2>}
+            {filteredData.length > 0 ? <div style={{ minHeight: 587 }}><TableContainer component={Paper} >
+                <MuiTable sx={{ minWidth: 650 }} aria-label="a dense table" className='main-table--container'>
+                    <TableHead>
+                        <TableRow sx={{ backgroundColor: "black", color: "white", fontWeight: "bold" }}>
+                            {tableHeaders.map((header, idx) => <TableCell sx={{ color: "white", fontWeight: "600" }} align={idx === 0 ? 'left' : "right"} className='table-head'
+                                style={{ cursor: header.key ? "pointer" : undefined }}
+                                onClick={() => handleHeaderClick(header)}
+                                key={header.title}>
+                                {header.title}<span>{localStorageHeader && JSON.parse(localStorageHeader).title === header.title && (header.isAscending ? ' 🔼' : ' 🔽')}</span>
+                            </TableCell>
+                            )}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {sortedData.slice(currentIndex, currentIndex + numOfItemsToShow).map(item => <TableRow hover key={item[keyField]}>
+                            {Object.entries(item).map(([key, value], idx) => {
+                                if (typeof value === 'object' && value !== null) return null
+                                return <TableCell align={idx === 0 ? 'left' : "right"} component={idx === 0 ? "th" : undefined} scope={idx === 0 ? "row" : undefined} className='table--body__td' onClick={() => handleRowClick(item)} key={key}>
+                                    {(typeof value === 'string' && isValidDate(value) ?
+                                        formatDate(value) :
+                                        (typeof value === "string" || typeof value === "number") &&
+                                        value as ReactNode)}</TableCell >
+                            })}
+                        </TableRow>)}
+                        {isOpenModal && <Modal component={<EmployeeDetails {...selectedItem as IEmployeeDetailsProps} />} isOpen={isOpenModal} closeModal={closeModal} />}
+                    </TableBody>
+                </MuiTable> </TableContainer></div> : <h2>No data to display</h2>}
             <TableFooter dataLength={sortedData.length} numOfItemsToShow={numOfItemsToShow} updateCurrentIndex={updateCurrentIndex} currentPage={currentPage} handleNextButton={handleNextButton} handlePrevButton={handlePrevButton} />
-        </div>
+        </React.Fragment>
     )
 }
