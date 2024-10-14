@@ -18,8 +18,8 @@ import { Button, Input } from '@mui/material'
 
 interface ITableProps<T> {
     data: any[]
-    headers: IHeader[]
-    keyField: string
+    headers: IHeader<T>[]
+    keyField: keyof T
     filterMenuProps?: Pick<IFilterMenuProps, 'title' | 'inputs'>
     mainSearchInput?: IMainSearchInputProps
     numOfItemsToShow?: number
@@ -30,8 +30,8 @@ interface IMainSearchInputProps {
     searchKey: string
 }
 
-interface IHeader {
-    key?: string
+interface IHeader<T> {
+    key?: keyof T
     title: string
     isAscending?: boolean
 }
@@ -43,9 +43,9 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
     const localStorageCurrPage = localStorage.getItem(LOCAL_STORAGE_CURR_PAGE)
     const localStorageCurrIdx = localStorage.getItem(LOCAL_STORAGE_CURR_IDX)
 
-    const [filteredData, setFilteredData] = useState<any[]>([])
+    const [filteredData, setFilteredData] = useState<T[]>([])
     const [selectedHeader, setSelectedHeader] = useState<string>((localStorageHeader && JSON.parse(localStorageHeader).title) ?? '')
-    const [tableHeaders, setTableHeaders] = useState<IHeader[]>(headers.map(({ key, title }) =>
+    const [tableHeaders, setTableHeaders] = useState<IHeader<T>[]>(headers.map(({ key, title }) =>
         ({ key, title, isAscending: localStorageHeader && title === JSON.parse(localStorageHeader).title ? JSON.parse(localStorageHeader).isAscending : false })
     ))
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState<boolean>(false)
@@ -100,9 +100,9 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
         return sortedData
     }, [selectedHeader, data, tableHeaders, filteredData])
 
-    const handleHeaderClick = (header: IHeader) => {
+    const handleHeaderClick = (header: IHeader<T>) => {
         if (header.key) {
-            const currentHeader: IHeader | undefined = tableHeaders.find(h => h.title === header.title)
+            const currentHeader: IHeader<T> | undefined = tableHeaders.find(h => h.title === header.title)
             setTableHeaders(prevTableHeaders => prevTableHeaders.map(currentHeader => ({ ...currentHeader, isAscending: header.title === currentHeader.title ? !currentHeader.isAscending : false })))
             setSelectedHeader(header.title)
             localStorage.setItem(LOCAL_STORAGE_HEADER, JSON.stringify({ ...currentHeader, isAscending: !header.isAscending }))
@@ -183,10 +183,10 @@ export const Table = <T,>({ data, headers, keyField, filterMenuProps, mainSearch
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {sortedData.slice(currentIndex, currentIndex + numOfItemsToShow).map(item => <TableRow hover key={item[keyField]}>
-                            {Object.entries(item).map(([key, value], idx) => {
+                        {sortedData.slice(currentIndex, currentIndex + numOfItemsToShow).map(item => <TableRow hover key={item[keyField] as string}>
+                            {Object.entries(item as object).map(([key, value], idx) => {
                                 if (typeof value === 'object' && value !== null) return null
-                                return <TableCell align={idx === 0 ? 'left' : "right"} component={idx === 0 ? "th" : undefined} scope={idx === 0 ? "row" : undefined} className='table--body__td' onClick={() => handleRowClick(item)} key={key}>
+                                return <TableCell align={idx === 0 ? 'left' : "right"} component={idx === 0 ? "th" : undefined} scope={idx === 0 ? "row" : undefined} className='table--body__td' onClick={() => handleRowClick(item as object)} key={key}>
                                     {(typeof value === 'string' && isValidDate(value) ?
                                         formatDate(value) :
                                         (typeof value === "string" || typeof value === "number") &&
